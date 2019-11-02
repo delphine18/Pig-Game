@@ -14,26 +14,35 @@
     init();
 
     // Rolling Dice event
+    var previousDice;
     document.querySelector('.btn-roll').addEventListener('click', function () {
       if (gamePlaying){
           //1.Random number
           var dice = Math.floor(Math.random() * 6) + 1;
-
+  
           //2.Display the result
           var diceDOM = document.querySelector('.dice');
           diceDOM.style.display = 'block';
           diceDOM.src = 'dice-' + dice + '.png';
 
           //3.Update the roundscore only if the rolled number was NOT a 1
-          if (dice !== 1) {
+          if((dice === 6 && previousDice === 6)){
+            // Player looses score
+            scores[activePlayer] = 0;
+            document.getElementById('score-' + activePlayer).textContent = '0';
+            nextPlayer();
+          } else if (dice !== 1) {
             // add score
             roundscore += dice;
             //  roundscore = roundscore + dice;
             document.querySelector('#current-' + activePlayer).textContent = roundscore;
-          } else {
+            previousDice = dice;
+          }
+          else {
             // next player
             nextPlayer();
           }
+          previousDice = dice;
       }
     })
 
@@ -44,9 +53,18 @@
         scores[activePlayer] += roundscore;
         // Update the UI 
       document.querySelector('#score-' + activePlayer).textContent = scores[activePlayer];
+      
+      var input = document.getElementById('winScore').value; 
+      var winningScore;
+      // Undefined, 0 , null or "" are COERCED TO FALSE anything else is COERCED to true;
+      if(input){
+        winningScore = input;
+        }else {
+        winningScore = 100;
+      }
 
       // Check if player won the game
-      if (scores[activePlayer] >= 100) {
+      if (scores[activePlayer] >= winningScore) {
         document.querySelector('#name-' + activePlayer).textContent = 'Winner!';
         document.querySelector('.dice').style.display = 'none';
         document.querySelector('.player-' + activePlayer + '-panel').classList.add('winner');
@@ -55,7 +73,7 @@
       } else {
         // Next Player
         nextPlayer();
-      }
+        }
       } 
     });
 
